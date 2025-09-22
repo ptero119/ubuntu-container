@@ -10,10 +10,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a non-root user (Railway runs as root otherwise)
-RUN useradd -m -s /bin/bash railway && echo "railway:railway" | chpasswd && adduser railway sudo
+RUN useradd -m -s /bin/bash railway && echo 'railway:railway' | chpasswd && adduser railway sudo
+
+# Download ttyd (web terminal)
+RUN wget https://github.com/tsl0922/ttyd/releases/download/1.7.3/ttyd.x86_64 \
+    && chmod +x ttyd.x86_64 \
+    && mv ttyd.x86_64 /usr/local/bin/ttyd
 
 # Set working directory
 WORKDIR /home/railway
 
-# Start bash by default
-CMD ["/bin/bash"]
+# Expose port 8080 (for ttyd web terminal)
+EXPOSE 8080
+
+# Start ttyd with bash
+CMD ["ttyd", "-p", "8080", "bash"]
